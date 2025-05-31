@@ -43,7 +43,7 @@ void filtrationSmooth(vector<complex<double>>& q, vector<double> omega, vector<d
 
 	size_t N = q.size();
 
-	// вычисляем полуширину окна в индексах
+	// ГўГ»Г·ГЁГ±Г«ГїГҐГ¬ ГЇГ®Г«ГіГёГЁГ°ГЁГ­Гі Г®ГЄГ­Г  Гў ГЁГ­Г¤ГҐГЄГ±Г Гµ
 
 	FT ft(omega, num_threads);
 
@@ -57,7 +57,7 @@ void filtrationSmooth(vector<complex<double>>& q, vector<double> omega, vector<d
 	double I1_before = energyIntegral(q, h);
 	double I2_before = energyFluxIntegral(q, h);
 
-	// Делаем мягкое отсечение высоких частот
+	// Г„ГҐГ«Г ГҐГ¬ Г¬ГїГЈГЄГ®ГҐ Г®ГІГ±ГҐГ·ГҐГ­ГЁГҐ ГўГ»Г±Г®ГЄГЁГµ Г·Г Г±ГІГ®ГІ
 
 	for (size_t p = 0; p < N; ++p) {
 		if ((kCut < abs(q[p])) && (abs(q[p]) <= maxK)) q[p] *= exp(-alpha * pow(abs(q[p]) - maxK, 2));
@@ -66,7 +66,7 @@ void filtrationSmooth(vector<complex<double>>& q, vector<double> omega, vector<d
 	}
 	ft.DFT(q, x, L, true);
 
-	// Считаем, сколько "энергии" (I1, I2) потерялось
+	// Г‘Г·ГЁГІГ ГҐГ¬, Г±ГЄГ®Г«ГјГЄГ® "ГЅГ­ГҐГ°ГЈГЁГЁ" (I1, I2) ГЇГ®ГІГҐГ°ГїГ«Г®Г±Гј
 	double I1_after = energyIntegral(q, h);
 	double I2_after = energyFluxIntegral(q, h);
 
@@ -82,7 +82,7 @@ void filtrationSmooth(vector<complex<double>>& q, vector<double> omega, vector<d
 void filtration(vector<complex<double>>& q, double h, double factor, double L, size_t step) {
 	size_t N = q.size();
 
-	// вычисляем полуширину окна в индексах
+	// ГўГ»Г·ГЁГ±Г«ГїГҐГ¬ ГЇГ®Г«ГіГёГЁГ°ГЁГ­Гі Г®ГЄГ­Г  Гў ГЁГ­Г¤ГҐГЄГ±Г Гµ
 
 	int delta = static_cast<int>(floor(L / (2.0 * h)));
 
@@ -95,7 +95,7 @@ void filtration(vector<complex<double>>& q, double h, double factor, double L, s
 
 	double maxAmp = abs(q[maxIt]);
 
-	// границы окна: i_left и i_right
+	// ГЈГ°Г Г­ГЁГ¶Г» Г®ГЄГ­Г : i_left ГЁ i_right
 	int i_left = maxIt - delta;
 	int i_right = maxIt + delta;
 
@@ -105,21 +105,21 @@ void filtration(vector<complex<double>>& q, double h, double factor, double L, s
 	double I1_before = energyIntegral(q, h);
 	double I2_before = energyFluxIntegral(q, h);
 
-	// Фильтруем (делим на factor) все элементы ВНЕ [i_left, i_right]
-	// Учитывая, что индекс может "переваливаться" через границу массива.
+	// Г”ГЁГ«ГјГІГ°ГіГҐГ¬ (Г¤ГҐГ«ГЁГ¬ Г­Г  factor) ГўГ±ГҐ ГЅГ«ГҐГ¬ГҐГ­ГІГ» Г‚ГЌГ… [i_left, i_right]
+	// Г“Г·ГЁГІГ»ГўГ Гї, Г·ГІГ® ГЁГ­Г¤ГҐГЄГ± Г¬Г®Г¦ГҐГІ "ГЇГҐГ°ГҐГўГ Г«ГЁГўГ ГІГјГ±Гї" Г·ГҐГ°ГҐГ§ ГЈГ°Г Г­ГЁГ¶Гі Г¬Г Г±Г±ГЁГўГ .
 
 	if (i_right < i_left) {
-		// Считаем, что окно "обернулось" через конец массива.
-		// Тогда фильтруем U[i_right..i_left].
+		// Г‘Г·ГЁГІГ ГҐГ¬, Г·ГІГ® Г®ГЄГ­Г® "Г®ГЎГҐГ°Г­ГіГ«Г®Г±Гј" Г·ГҐГ°ГҐГ§ ГЄГ®Г­ГҐГ¶ Г¬Г Г±Г±ГЁГўГ .
+		// Г’Г®ГЈГ¤Г  ГґГЁГ«ГјГІГ°ГіГҐГ¬ U[i_right..i_left].
 		for (int i = i_right; i < i_left; i++) {
 			q[i] *= exp(-factor * pow(abs(q[i] - maxAmp), 2));
 		}
 	}
 	else {
-		// Сначала фильтруем "левую" часть [0..i_left], 
-		// потом "правую" часть [i_right..N-1].
-		// (Тут подразумевается, что "окно" - это (i_left..i_right),
-		//  и мы, наоборот, за его пределами ослабляем решение.)
+		// Г‘Г­Г Г·Г Г«Г  ГґГЁГ«ГјГІГ°ГіГҐГ¬ "Г«ГҐГўГіГѕ" Г·Г Г±ГІГј [0..i_left], 
+		// ГЇГ®ГІГ®Г¬ "ГЇГ°Г ГўГіГѕ" Г·Г Г±ГІГј [i_right..N-1].
+		// (Г’ГіГІ ГЇГ®Г¤Г°Г Г§ГіГ¬ГҐГўГ ГҐГІГ±Гї, Г·ГІГ® "Г®ГЄГ­Г®" - ГЅГІГ® (i_left..i_right),
+		//  ГЁ Г¬Г», Г­Г Г®ГЎГ®Г°Г®ГІ, Г§Г  ГҐГЈГ® ГЇГ°ГҐГ¤ГҐГ«Г Г¬ГЁ Г®Г±Г«Г ГЎГ«ГїГҐГ¬ Г°ГҐГёГҐГ­ГЁГҐ.)
 		for (int i = 0; i < i_left; i++) {
 			q[i] *= exp(-factor * pow(abs(q[i] - maxAmp), 2));
 		}
@@ -128,7 +128,7 @@ void filtration(vector<complex<double>>& q, double h, double factor, double L, s
 		}
 	}
 
-	// Считаем, сколько "энергии" (I1, I2) потерялось
+	// Г‘Г·ГЁГІГ ГҐГ¬, Г±ГЄГ®Г«ГјГЄГ® "ГЅГ­ГҐГ°ГЈГЁГЁ" (I1, I2) ГЇГ®ГІГҐГ°ГїГ«Г®Г±Гј
 	double I1_after = energyIntegral(q, h);
 	double I2_after = energyFluxIntegral(q, h);
 
@@ -408,7 +408,7 @@ int main(int argc, char** argv)
 
 
 
-	//запись для 3-д графика квадрата модуля сигнала
+	//Г§Г ГЇГЁГ±Гј Г¤Г«Гї 3-Г¤ ГЈГ°Г ГґГЁГЄГ  ГЄГўГ Г¤Г°Г ГІГ  Г¬Г®Г¤ГіГ«Гї Г±ГЁГЈГ­Г Г«Г 
 
 
 	size_t linw = 9;
@@ -460,7 +460,7 @@ int main(int argc, char** argv)
 
 				//linearFM(V, omegaFr, x, tau / 2, L, chi);
 
-				//модули считаются по старым компонентам
+				//Г¬Г®Г¤ГіГ«ГЁ Г±Г·ГЁГІГ ГѕГІГ±Гї ГЇГ® Г±ГІГ Г°Г»Г¬ ГЄГ®Г¬ГЇГ®Г­ГҐГ­ГІГ Г¬
 				nonlinearFM(signal, V, omegaFr, tau, L, eps, num_threads);
 
 				linearFM(V, omegaFr, x, tau, L, chi, num_threads);
